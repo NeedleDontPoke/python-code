@@ -1,35 +1,40 @@
-import tkinter as tk
-import tkinter.ttk as ttk
-import csv
+from abc import ABCMeta, abstractmethod
 
-class App:
-    def __init__(self, master):
-        self.master = master
-        self.master.title("表格数据")
 
-        self.load_button = tk.Button(
-            self.master, text="加载数据", command=self.load_data)
-        self.load_button.pack()
+class Main(object, metaclass=ABCMeta):
+    __slots__ = ('_name', '_n')
 
-    def load_data(self):
-        with open("data.csv", "r") as f:
-            reader = csv.reader(f)
-            data = list(reader)
+    def __init__(self, name, n=0):
+        self._name = name
+        self._n = n
 
-        columns = data[0]
-        rows = data[1:]
+    @property
+    def name(self):
+        return self._name
 
-        self.treeview = ttk.Treeview(self.master, columns=columns, show="headings")
+    @property
+    def n(self):
+        return self._n
 
-        for column in columns:
-            self.treeview.heading(column, text=column)
+    @n.setter
+    def n(self, n):
+        self._n = n
 
-        for row in rows:
-            self.treeview.insert("", tk.END, values=row)
+    @abstractmethod
+    def count(self):
+        return self._name * self._n if self._n != 0 else 'error'
 
-        self.treeview.pack()
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = App(root)
-    root.mainloop()
+class Person(Main):
+    def count(self):
+        return self._name * self._n
+
+
+def main():
+    persons = [Person('gzy', 5), Person('hyy', 2)]
+    for person in persons:
+        print(person.count())
+
+
+if __name__ == '__main__':
+    main()
