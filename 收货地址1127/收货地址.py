@@ -140,7 +140,6 @@ class DrawWindows(Windows):
                 get_vars = self.getting()[1]
                 for i, line in enumerate(lines):
                     get_vars[i].set(line.strip()) if i < len(get_vars) else self.active.set(lines[-1])
-
                 messagebox.showinfo('Success', '加载数据成功')
         except FileNotFoundError:
             messagebox.showerror('Failed to load', '无保存的数据')
