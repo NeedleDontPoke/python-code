@@ -1,5 +1,5 @@
-import os
-import random
+from os import execl
+from numpy import random
 import sys
 import tkinter as tk
 from tkinter import messagebox
@@ -9,7 +9,7 @@ import FileFixer
 
 def restart_program():
     python = sys.executable
-    os.execl(python, python, *sys.argv)
+    execl(python, python, *sys.argv)
 
 
 def show_fix_option(filename):
@@ -19,7 +19,7 @@ def show_fix_option(filename):
         messagebox.showinfo('Successful Fix', 'The program need to restart')
         restart_program()
     else:
-        exit()
+        sys.exit()
 
 
 def load_word_list(filename):
@@ -69,13 +69,13 @@ class GameDifficultyWindow:
 class WordMemory:
     def __init__(self, document, live):
         # 初始化游戏对象
-        self.document = document  # 单词列表
+        self.__document = document  # 单词列表
         self.point = 0  # 分数
         self.live = live  # 生命值
         self.words_seen = set()  # 用于存放已经出现过的单词
 
     def r_len(self):
-        return len(self.words_seen) == len(self.document)
+        return len(self.words_seen) == len(self.__document)
 
     def r_point(self):
         return self.point
@@ -84,13 +84,13 @@ class WordMemory:
         return self.live
 
     def display_word(self):
-        # 50%的概率从总词库document随机生成单词，50%的概率从words_seen中随机生成单词
-        if self.words_seen and random.choice([True, False]):
+        # 65%的概率从总词库document随机生成单词，35%的概率从words_seen中随机生成单词
+        if self.words_seen and random.choice([True, False], p=[0.35, 0.65]):
             # 从已经出现过的单词中随机选择一个单词
             selected_element = random.choice(list(self.words_seen))
         else:
             # 从总词库document中随机选择一个单词
-            selected_element = random.choice(self.document)
+            selected_element = random.choice(self.__document)
         return selected_element
 
     def judge(self, choice, word):
@@ -156,7 +156,7 @@ class GameWindow:
             messagebox.showinfo("Game Victory", f"Game Victory. Your score is {self.word_memory.point}")
             self.root.destroy()
             run()
-        if self.word_memory.live == 0:
+        elif self.word_memory.r_live() == 0:
             messagebox.showinfo("Game Over", f"Game Over. Your score is {self.word_memory.point}")
             self.root.destroy()
             run()
