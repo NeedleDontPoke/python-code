@@ -1,8 +1,9 @@
-from os import execl
-from numpy import random
 import sys
 import tkinter as tk
+from os import execl
 from tkinter import messagebox
+
+from numpy import random
 
 import FileFixer
 
@@ -69,10 +70,11 @@ class GameDifficultyWindow:
 class WordMemory:
     def __init__(self, document, live):
         # 初始化游戏对象
-        self.__document = document  # 单词列表
+        self.__document = document  # 总单词列表
         self.point = 0  # 分数
         self.live = live  # 生命值
         self.words_seen = set()  # 用于存放已经出现过的单词
+        self.last_word = None  # 用于存放上一次出现的单词
 
     def r_len(self):
         return len(self.words_seen) == len(self.__document)
@@ -84,13 +86,17 @@ class WordMemory:
         return self.live
 
     def display_word(self):
-        # 65%的概率从总词库document随机生成单词，35%的概率从words_seen中随机生成单词
-        if self.words_seen and random.choice([True, False], p=[0.35, 0.65]):
-            # 从已经出现过的单词中随机选择一个单词
-            selected_element = random.choice(list(self.words_seen))
+        # 65%的概率从没有出现过的单词中随机生成单词，35%的概率从words_seen中随机生成单词
+        if not self.words_seen or random.choice([True, False], p=[0.65, 0.35]):
+            # 从没有出现过的单词中随机选择一个单词，确保不同于上一次显示的单词
+            available_words = [word for word in self.__document if
+                               word not in self.words_seen and word != self.last_word]
+            selected_element = random.choice(available_words) if available_words else None
         else:
-            # 从总词库document中随机选择一个单词
-            selected_element = random.choice(self.__document)
+            # 从已经出现过的单词中随机选择一个单词，确保不同于上一次显示的单词
+            available_words = list(self.words_seen - {self.last_word})
+            selected_element = random.choice(available_words) if available_words else None
+        self.last_word = selected_element  # 更新上一次出现的单词
         return selected_element
 
     def judge(self, choice, word):
