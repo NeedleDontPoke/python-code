@@ -25,11 +25,14 @@ class FixFile:
                                    'Auspiciously']
         }
 
-    def fix(self, filename):
+    def __fix(self, filename):
         with open(filename, 'w') as file:
             for element in self.__word_list[filename]:
-                file.write(element + "\n")
+                file.write(f'{element}\n')
             return True
+
+    def fix(self):
+        return self.__fix(self.__filename)
 
     def get_list(self, filename):
         return self.__word_list[filename]

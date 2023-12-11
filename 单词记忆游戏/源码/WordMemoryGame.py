@@ -1,6 +1,5 @@
 import sys
 import tkinter as tk
-from os import execl
 from tkinter import messagebox
 
 from numpy import random
@@ -8,19 +7,12 @@ from numpy import random
 import FileFixer
 
 
-def restart_program():
-    python = sys.executable
-    execl(python, python, *sys.argv)
-
-
 def show_fix_option(filename):
     fixer = FileFixer.FixFile(filename)
     result = messagebox.askquestion('File Missing', 'File missing, fix or not')
-    if result == 'yes' and fixer.fix(filename):
+    if result == 'yes' and fixer.fix():
         messagebox.showinfo('Successful Fix', 'The program need to restart')
-        restart_program()
-    else:
-        sys.exit()
+    sys.exit()
 
 
 def load_word_list(filename):
@@ -87,17 +79,21 @@ class WordMemory:
 
     def display_word(self):
         # 65%的概率从没有出现过的单词中随机生成单词，35%的概率从words_seen中随机生成单词
-        if not self.words_seen or random.choice([True, False], p=[0.65, 0.35]):
-            # 从没有出现过的单词中随机选择一个单词，确保不同于上一次显示的单词
-            available_words = [word for word in self.__document if
-                               word not in self.words_seen and word != self.last_word]
-            selected_element = random.choice(available_words) if available_words else None
-        else:
-            # 从已经出现过的单词中随机选择一个单词，确保不同于上一次显示的单词
-            available_words = list(self.words_seen - {self.last_word})
-            selected_element = random.choice(available_words) if available_words else None
-        self.last_word = selected_element  # 更新上一次出现的单词
-        return selected_element
+        while True:
+            if not self.words_seen or random.choice([True, False], p=[0.65, 0.35]):
+                # 从没有出现过的单词中随机选择一个单词，确保不同于上一次显示的单词
+                available_words = [word for word in self.__document if
+                                   word not in self.words_seen and word != self.last_word]
+            else:
+                # 从已经出现过的单词中随机选择一个单词，确保不同于上一次显示的单词
+                available_words = self.words_seen.copy()
+                if self.last_word is not None:
+                    available_words.discard(self.last_word)
+            if available_words:
+                selected_element = random.choice(list(available_words))
+                if selected_element != self.last_word:
+                    self.last_word = selected_element
+                    return selected_element
 
     def judge(self, choice, word):
         # 判断用户的选择是否正确，更新分数、生命值和单词状态
@@ -160,18 +156,17 @@ class GameWindow:
         self.live_label.config(text=f"Lives: {self.word_memory.r_live()}")
         if self.word_memory.r_len():
             messagebox.showinfo("Game Victory", f"Game Victory. Your score is {self.word_memory.point}")
-            self.root.destroy()
-            run()
+            self.go_home_page()
         elif self.word_memory.r_live() == 0:
             messagebox.showinfo("Game Over", f"Game Over. Your score is {self.word_memory.point}")
-            self.root.destroy()
-            run()
+            self.go_home_page()
 
     def go_home_page(self):
         self.root.destroy()
         run()
 
     def run_game(self):
+        self.root.protocol("WM_DELETE_WINDOW", self.go_home_page)
         self.root.mainloop()
 
 
