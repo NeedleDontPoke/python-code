@@ -1,3 +1,4 @@
+import os
 import sys
 import tkinter as tk
 from tkinter import messagebox
@@ -7,12 +8,19 @@ from numpy import random
 import FileFixer
 
 
+def restart_program():
+    python = sys.executable
+    os.execl(python, python, *sys.argv)
+
+
 def show_fix_option(filename):
     fixer = FileFixer.FixFile(filename)
     result = messagebox.askquestion('File Missing', 'File missing, fix or not')
     if result == 'yes' and fixer.fix():
         messagebox.showinfo('Successful Fix', 'The program need to restart')
-    sys.exit()
+        restart_program()
+    else:
+        sys.exit()
 
 
 def load_word_list(filename):
