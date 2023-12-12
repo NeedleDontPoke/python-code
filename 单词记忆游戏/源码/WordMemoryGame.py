@@ -9,11 +9,13 @@ import FileFixer
 
 
 def restart_program():
+    # 重启程序
     python = sys.executable
     os.execl(python, python, *sys.argv)
 
 
 def show_fix_option(filename):
+    # 处理文件缺失
     fixer = FileFixer.FixFile(filename)
     result = messagebox.askquestion('File Missing', 'File missing, fix or not')
     if result == 'yes' and fixer.fix():
@@ -24,8 +26,8 @@ def show_fix_option(filename):
 
 
 def load_word_list(filename):
-    fixer = FileFixer.FixFile(filename)
     # 从文件中加载单词列表
+    fixer = FileFixer.FixFile(filename)
     try:
         with open(filename, 'r') as file:
             get = [line.strip() for line in file]
@@ -35,7 +37,7 @@ def load_word_list(filename):
 
 
 def choose_game_mode(choice):
-    # 选择游戏难度模式，返回对应的文件名和生命值
+    # 返回对应的文件名和生命值
     modes = {'easy': ('word_list_easy.txt', 5), 'hard': ('word_list_hard.txt', 3), 'dead': ('word_list_dead.txt', 1)}
     return modes.get(choice)
 
@@ -62,6 +64,7 @@ class GameDifficultyWindow:
         tk.Button(master, text="Start Game", command=self.start_game).pack(pady=10)
 
     def start_game(self):
+        # 处理用户选择的游戏难度，并开始游戏
         difficulty_choice = self.difficulty_var.get()
         self.master.destroy()
         GameWindow(difficulty_choice)
@@ -71,8 +74,8 @@ class WordMemory:
     def __init__(self, document, live):
         # 初始化游戏对象
         self.__document = document  # 总单词列表
-        self.point = 0  # 分数
-        self.live = live  # 生命值
+        self.__point = 0  # 分数
+        self.__live = live  # 生命值
         self.words_seen = set()  # 用于存放已经出现过的单词
         self.last_word = None  # 用于存放上一次出现的单词
 
@@ -80,10 +83,10 @@ class WordMemory:
         return len(self.words_seen) == len(self.__document)
 
     def r_point(self):
-        return self.point
+        return self.__point
 
     def r_live(self):
-        return self.live
+        return self.__live
 
     def display_word(self):
         # 65%的概率从没有出现过的单词中随机生成单词，35%的概率从words_seen中随机生成单词
@@ -106,9 +109,9 @@ class WordMemory:
     def judge(self, choice, word):
         # 判断用户的选择是否正确，更新分数、生命值和单词状态
         if (word not in self.words_seen and choice == 'new') or (word in self.words_seen and choice == 'seen'):
-            self.point += 1
+            self.__point += 1
         else:
-            self.live -= 1
+            self.__live -= 1
         self.words_seen.add(word)  # 出现过的单词放入集合里
 
 
@@ -152,7 +155,7 @@ class GameWindow:
         self.run_game()
 
     def submit_choice(self):
-        # 处理事件
+        # 处理用户的选择，更新分数和生命值
         self.word_memory.judge(self.choice_var.get(), self.word)
         self.word = self.word_memory.display_word()
         self.update_game_info()
@@ -163,10 +166,10 @@ class GameWindow:
         self.score_label.config(text=f"Score: {self.word_memory.r_point()}")
         self.live_label.config(text=f"Lives: {self.word_memory.r_live()}")
         if self.word_memory.r_len():
-            messagebox.showinfo("Game Victory", f"Game Victory. Your score is {self.word_memory.point}")
+            messagebox.showinfo("Game Victory", f"Game Victory. Your score is {self.word_memory.r_point()}")
             self.go_home_page()
         elif self.word_memory.r_live() == 0:
-            messagebox.showinfo("Game Over", f"Game Over. Your score is {self.word_memory.point}")
+            messagebox.showinfo("Game Over", f"Game Over. Your score is {self.word_memory.r_point()}")
             self.go_home_page()
 
     def go_home_page(self):

@@ -26,13 +26,16 @@ class FixFile:
         }
 
     def __fix(self, filename):
+        # 修复文件的私有方法，写入预定义的单词列表到文件中
         with open(filename, 'w') as file:
             for element in self.__word_list[filename]:
                 file.write(f'{element}\n')
             return True
 
     def fix(self):
+        # 调用修复方法
         return self.__fix(self.__filename)
 
     def get_list(self, filename):
+        # 获取预定义的单词列表
         return self.__word_list[filename]
