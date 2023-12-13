@@ -1,7 +1,6 @@
 import os
 import sys
-import tkinter as tk
-from tkinter import messagebox
+from tkinter import Tk, Label, StringVar, Radiobutton, Button, Menu, messagebox, LEFT
 
 from numpy import random
 
@@ -28,11 +27,12 @@ def show_fix_option(filename):
 def load_word_list(filename):
     # 从文件中加载单词列表
     fixer = FileFixer.FixFile(filename)
-    try:
+    # 检测文件是否存在
+    if os.path.isfile(filename):
         with open(filename, 'r') as file:
             get = [line.strip() for line in file]
             return get if get == fixer.get_list(filename) else show_fix_option(filename)
-    except FileNotFoundError:
+    else:
         show_fix_option(filename)
 
 
@@ -55,13 +55,13 @@ class GameDifficultyWindow:
         y_position = (screen_height - window_height) // 2
         self.master.minsize(window_width, window_height)
         self.master.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
-        self.difficulty_var = tk.StringVar()
+        self.difficulty_var = StringVar()
         self.difficulty_var.set("easy")
-        tk.Label(master, text="Select Game Difficulty").pack(pady=10)
-        tk.Radiobutton(master, text="Easy", variable=self.difficulty_var, value="easy", fg="green").pack()
-        tk.Radiobutton(master, text="Hard", variable=self.difficulty_var, value="hard", fg="red").pack()
-        tk.Radiobutton(master, text="Dead", variable=self.difficulty_var, value="dead", fg="purple").pack()
-        tk.Button(master, text="Start Game", command=self.start_game).pack(pady=10)
+        Label(master, text="Select Game Difficulty").pack(pady=10)
+        Radiobutton(master, text="Easy", variable=self.difficulty_var, value="easy", fg="green").pack()
+        Radiobutton(master, text="Hard", variable=self.difficulty_var, value="hard", fg="red").pack()
+        Radiobutton(master, text="Dead", variable=self.difficulty_var, value="dead", fg="purple").pack()
+        Button(master, text="Start Game", command=self.start_game).pack(pady=10)
 
     def start_game(self):
         # 处理用户选择的游戏难度，并开始游戏
@@ -118,7 +118,7 @@ class WordMemory:
 class GameWindow:
     def __init__(self, difficulty):
         # 设置游戏界面的控件
-        self.root = tk.Tk()
+        self.root = Tk()
         self.root.title("Word Memory Game")
         window_width = 300
         window_height = 150
@@ -131,24 +131,24 @@ class GameWindow:
         self.mode_filename, self.lives = choose_game_mode(difficulty)
         self.word_list = load_word_list(self.mode_filename)
         self.word_memory = WordMemory(self.word_list, self.lives)
-        self.menubar = tk.Menu(self.root)
-        self.file_menu = tk.Menu(self.menubar, tearoff=False)
+        self.menubar = Menu(self.root)
+        self.file_menu = Menu(self.menubar, tearoff=False)
         self.file_menu.add_command(label='Menu', command=self.go_home_page)
         self.file_menu.add_separator()
         self.file_menu.add_command(label='Current Difficulty',
                                    command=lambda: messagebox.showinfo("Difficulty", f"Difficulty:{difficulty}"))
         self.menubar.add_cascade(label='option', menu=self.file_menu)
         self.root.config(menu=self.menubar)
-        self.word_label = tk.Label(self.root, font=('Arial', 15))
+        self.word_label = Label(self.root, font=('Arial', 15))
         self.word_label.pack(pady=10)
-        self.choice_var = tk.StringVar()
+        self.choice_var = StringVar()
         self.choice_var.set("new")
-        tk.Radiobutton(self.root, text="New", variable=self.choice_var, value="new").pack(side=tk.LEFT, padx=10)
-        tk.Radiobutton(self.root, text="Seen", variable=self.choice_var, value="seen").pack(side=tk.LEFT, padx=10)
-        tk.Button(self.root, text="Submit", command=self.submit_choice).pack(pady=10)
-        self.score_label = tk.Label(self.root)
+        Radiobutton(self.root, text="New", variable=self.choice_var, value="new").pack(side=LEFT, padx=10)
+        Radiobutton(self.root, text="Seen", variable=self.choice_var, value="seen").pack(side=LEFT, padx=10)
+        Button(self.root, text="Submit", command=self.submit_choice).pack(pady=10)
+        self.score_label = Label(self.root)
         self.score_label.pack()
-        self.live_label = tk.Label(self.root, text=f"Lives: {self.lives}")
+        self.live_label = Label(self.root, text=f"Lives: {self.lives}")
         self.live_label.pack()
         self.word = self.word_memory.display_word()
         self.update_game_info()
@@ -182,7 +182,7 @@ class GameWindow:
 
 
 def run():
-    difficulty_window = tk.Tk()
+    difficulty_window = Tk()
     GameDifficultyWindow(difficulty_window)
     difficulty_window.mainloop()
 
