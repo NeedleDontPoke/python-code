@@ -28,9 +28,8 @@ class FixFile:
     def __fix(self, filename):
         # 修复文件的私有方法，写入预定义的单词列表到文件中
         with open(filename, 'w') as file:
-            for element in self.__word_list[filename]:
-                file.write(f'{element}\n')
-            return True
+            file.writelines(f'{word}\n' for word in self.__word_list[filename])
+        return True
 
     def fix(self):
         # 调用修复方法
