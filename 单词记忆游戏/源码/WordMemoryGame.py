@@ -1,45 +1,8 @@
-import os
-import sys
 from tkinter import Tk, Label, StringVar, Radiobutton, Button, Menu, messagebox, LEFT
 
 from numpy import random
 
-import FileFixer
-
-
-def restart_program():
-    # 重启程序
-    python = sys.executable
-    os.execl(python, python, *sys.argv)
-
-
-def show_fix_option(filename):
-    # 处理文件缺失
-    fixer = FileFixer.FixFile(filename)
-    result = messagebox.askquestion('File Missing', 'File missing, fix or not')
-    if result == 'yes' and fixer.fix():
-        messagebox.showinfo('Successful Fix', 'The program need to restart')
-        restart_program()
-    else:
-        sys.exit()
-
-
-def load_word_list(filename):
-    # 从文件中加载单词列表
-    fixer = FileFixer.FixFile(filename)
-    # 检测文件是否存在
-    if os.path.isfile(filename):
-        with open(filename, 'r') as file:
-            get = [line.strip() for line in file]
-            return get if get == fixer.get_list(filename) else show_fix_option(filename)
-    else:
-        show_fix_option(filename)
-
-
-def choose_game_mode(choice):
-    # 返回对应的文件名和生命值
-    modes = {'easy': ('word_list_easy.txt', 5), 'hard': ('word_list_hard.txt', 3), 'dead': ('word_list_dead.txt', 1)}
-    return modes.get(choice)
+import FileLoader
 
 
 class GameDifficultyWindow:
@@ -128,8 +91,9 @@ class GameWindow:
         y_position = (screen_height - window_height) // 2
         self.root.minsize(window_width, window_height)
         self.root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
-        self.mode_filename, self.lives = choose_game_mode(difficulty)
-        self.word_list = load_word_list(self.mode_filename)
+        self.mode_filename, self.lives = self.choose_game_mode(difficulty)
+        load = FileLoader.LoadFile(self.mode_filename)
+        self.word_list = load.load_word_list()
         self.word_memory = WordMemory(self.word_list, self.lives)
         self.menubar = Menu(self.root)
         self.file_menu = Menu(self.menubar, tearoff=False)
@@ -153,6 +117,16 @@ class GameWindow:
         self.word = self.word_memory.display_word()
         self.update_game_info()
         self.run_game()
+
+    @staticmethod
+    def choose_game_mode(choice):
+        # 返回对应的文件名和生命值
+        modes = {
+            'easy': ('word_list_easy.txt', 5),
+            'hard': ('word_list_hard.txt', 3),
+            'dead': ('word_list_dead.txt', 1)
+        }
+        return modes.get(choice)
 
     def submit_choice(self):
         # 处理用户的选择，更新分数和生命值
