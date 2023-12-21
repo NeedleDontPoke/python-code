@@ -1,4 +1,5 @@
-from tkinter import Tk, Label, StringVar, Radiobutton, Button, Menu, messagebox, LEFT
+from tkinter import Tk, StringVar, Menu, messagebox, LEFT
+from tkinter.ttk import Button, Radiobutton, Style, Label
 
 from numpy import random
 
@@ -18,13 +19,18 @@ class GameDifficultyWindow:
         y_position = (screen_height - window_height) // 2
         self.master.minsize(window_width, window_height)
         self.master.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+        self.style = Style()
+        self.style.configure("Easy.TRadiobutton", foreground="green")
+        self.style.configure("Hard.TRadiobutton", foreground="red")
+        self.style.configure("Dead.TRadiobutton", foreground="purple")
+        self.style.configure("TLabel", font=("Arial", 12, "bold"))
         self.difficulty_var = StringVar()
         self.difficulty_var.set("easy")
-        Label(master, text="Select Game Difficulty").pack(pady=10)
-        Radiobutton(master, text="Easy", variable=self.difficulty_var, value="easy", fg="green").pack()
-        Radiobutton(master, text="Hard", variable=self.difficulty_var, value="hard", fg="red").pack()
-        Radiobutton(master, text="Dead", variable=self.difficulty_var, value="dead", fg="purple").pack()
-        Button(master, text="Start Game", command=self.start_game).pack(pady=10)
+        Label(master, text="Select Game Difficulty", style="TLabel").pack(pady=10)
+        Radiobutton(master, text="Easy", variable=self.difficulty_var, value="easy", style="Easy.TRadiobutton").pack()
+        Radiobutton(master, text="Hard", variable=self.difficulty_var, value="hard", style="Hard.TRadiobutton").pack()
+        Radiobutton(master, text="Dead", variable=self.difficulty_var, value="dead", style="Dead.TRadiobutton").pack()
+        Button(master, text="Start Game", command=self.start_game, style="TButton").pack(pady=10)
 
     def start_game(self):
         # 处理用户选择的游戏难度，并开始游戏
@@ -107,9 +113,11 @@ class GameWindow:
         self.word_label.pack(pady=10)
         self.choice_var = StringVar()
         self.choice_var.set("new")
-        Radiobutton(self.root, text="New", variable=self.choice_var, value="new").pack(side=LEFT, padx=10)
-        Radiobutton(self.root, text="Seen", variable=self.choice_var, value="seen").pack(side=LEFT, padx=10)
-        Button(self.root, text="Submit", command=self.submit_choice).pack(pady=10)
+        Radiobutton(self.root, text="New", variable=self.choice_var, value="new", style="TRadiobutton").pack(
+            side=LEFT, padx=10)
+        Radiobutton(self.root, text="Seen", variable=self.choice_var, value="seen", style="TRadiobutton").pack(
+            side=LEFT, padx=10)
+        Button(self.root, text="Submit", command=self.submit_choice, style="TButton").pack(pady=10)
         self.score_label = Label(self.root)
         self.score_label.pack()
         self.live_label = Label(self.root, text=f"Lives: {self.lives}")
