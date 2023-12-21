@@ -12,7 +12,7 @@ class GameDifficultyWindow:
         self.master = master
         self.master.title("Difficulty Selection")
         window_width = 300
-        window_height = 180
+        window_height = 200
         screen_width = master.winfo_screenwidth()
         screen_height = master.winfo_screenheight()
         x_position = (screen_width - window_width) // 2
@@ -20,9 +20,9 @@ class GameDifficultyWindow:
         self.master.minsize(window_width, window_height)
         self.master.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
         self.style = Style()
-        self.style.configure("Easy.TRadiobutton", foreground="green")
-        self.style.configure("Hard.TRadiobutton", foreground="red")
-        self.style.configure("Dead.TRadiobutton", foreground="purple")
+        self.style.configure("Easy.TRadiobutton", foreground="green", font=("Blackadder ITC", 15))
+        self.style.configure("Hard.TRadiobutton", foreground="red", font=("Blackadder ITC", 15))
+        self.style.configure("Dead.TRadiobutton", foreground="purple", font=("Blackadder ITC", 15))
         self.style.configure("TLabel", font=("Arial", 12, "bold"))
         self.difficulty_var = StringVar()
         self.difficulty_var.set("easy")
