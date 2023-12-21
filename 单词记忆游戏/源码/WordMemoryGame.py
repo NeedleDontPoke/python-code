@@ -1,3 +1,6 @@
+import sys
+from msvcrt import locking, LK_NBLCK
+from os import remove
 from tkinter import Tk, StringVar, Menu, messagebox, LEFT
 from tkinter.ttk import Button, Radiobutton, Style, Label
 
@@ -6,8 +9,29 @@ from numpy import random
 import FileLoader
 
 
+class SingleInstance:
+    def __init__(self):
+        self.LOCK_FILE = "word_memory_game.lock"
+        self.lock_file = open(self.LOCK_FILE, "w")
+
+    def is_running(self):
+        try:
+            locking(self.lock_file.fileno(), LK_NBLCK, 1)
+            return False
+        except IOError:
+            return True
+
+    def __del__(self):
+        self.lock_file.close()
+        remove(self.LOCK_FILE)
+
+
 class GameDifficultyWindow:
     def __init__(self, master):
+        self.single_instance = SingleInstance()
+        if self.single_instance.is_running():
+            messagebox.showerror("Error", "Another instance is already running.")
+            sys.exit(1)
         # 游戏设置界面的控件
         self.master = master
         self.master.title("Difficulty Selection")
