@@ -1,5 +1,5 @@
 """用于加载文件"""
-from os import path, execl
+from os import path, execl, remove
 from sys import exit, argv, executable
 from tkinter import messagebox
 
@@ -15,6 +15,7 @@ class LoadFile:
 
     @staticmethod
     def restart_program():
+        remove("word_memory_game.lock")
         # 重启程序
         python = executable
         execl(python, python, *argv)
@@ -22,7 +23,7 @@ class LoadFile:
     def __load_word_list(self):
         # 检测文件是否存在
         if path.isfile(self.filename):
-            with open(self.filename, 'r') as file:
+            with open(self.filename, 'r', encoding="UTF-8") as file:
                 get = [line.strip() for line in file]
                 return get if get == self.fixer.get_list(self.filename) else self.show_fix_option()
         else:

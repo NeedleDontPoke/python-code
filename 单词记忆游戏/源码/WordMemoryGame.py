@@ -1,6 +1,4 @@
-import sys
-from msvcrt import locking, LK_NBLCK
-from os import remove
+from os import remove, path
 from tkinter import Tk, StringVar, Menu, messagebox, LEFT
 from tkinter.ttk import Button, Radiobutton, Style, Label
 
@@ -9,29 +7,8 @@ from numpy import random
 import FileLoader
 
 
-class SingleInstance:
-    def __init__(self):
-        self.LOCK_FILE = "word_memory_game.lock"
-        self.lock_file = open(self.LOCK_FILE, "w")
-
-    def is_running(self):
-        try:
-            locking(self.lock_file.fileno(), LK_NBLCK, 1)
-            return False
-        except IOError:
-            return True
-
-    def __del__(self):
-        self.lock_file.close()
-        remove(self.LOCK_FILE)
-
-
 class GameDifficultyWindow:
     def __init__(self, master):
-        self.single_instance = SingleInstance()
-        if self.single_instance.is_running():
-            messagebox.showerror("Error", "Another instance is already running.")
-            sys.exit(1)
         # 游戏设置界面的控件
         self.master = master
         self.master.title("Difficulty Selection")
@@ -173,13 +150,15 @@ class GameWindow:
         self.live_label.config(text=f"Lives: {self.word_memory.r_live()}")
         if self.word_memory.r_len():
             messagebox.showinfo("Game Victory", f"Game Victory. Your score is {self.word_memory.r_point()}")
-            self.go_home_page()
         elif self.word_memory.r_live() == 0:
             messagebox.showinfo("Game Over", f"Game Over. Your score is {self.word_memory.r_point()}")
-            self.go_home_page()
+        else:
+            return
+        self.go_home_page()
 
     def go_home_page(self):
         self.root.destroy()
+        remove(LOCK_FILE) if path.exists(LOCK_FILE) else None
         run()
 
     def run_game(self):
@@ -188,10 +167,23 @@ class GameWindow:
 
 
 def run():
-    difficulty_window = Tk()
-    GameDifficultyWindow(difficulty_window)
-    difficulty_window.mainloop()
+    # 写入应用锁
+    if path.exists(LOCK_FILE):
+        messagebox.showerror("Error", "WordMemoryGame is already running.")
+        return
+    with open(LOCK_FILE, "w"):
+        pass
+    try:
+        # 游戏入口
+        difficulty_window = Tk()
+        GameDifficultyWindow(difficulty_window)
+        difficulty_window.protocol("WM_DELETE_WINDOW", difficulty_window.destroy)
+        difficulty_window.mainloop()
+    finally:
+        # 退出游戏删除应用锁
+        remove(LOCK_FILE) if path.exists(LOCK_FILE) else None
 
 
 if __name__ == '__main__':
+    LOCK_FILE = "word_memory_game.lock"
     run()
