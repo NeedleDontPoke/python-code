@@ -1,5 +1,5 @@
 """用于加载文件"""
-from os import path, execl, remove
+from os import path, execl
 from sys import exit, argv, executable
 from tkinter import messagebox
 
@@ -15,7 +15,6 @@ class LoadFile:
 
     @staticmethod
     def restart_program():
-        remove("word_memory_game.lock")
         # 重启程序
         python = executable
         execl(python, python, *argv)

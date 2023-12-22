@@ -1,7 +1,9 @@
-from os import remove, path
+from os import remove
+from os.path import exists
 from tkinter import Tk, StringVar, Menu, messagebox, LEFT
 from tkinter.ttk import Button, Radiobutton, Style, Label
 
+import portalocker
 from numpy import random
 
 import FileLoader
@@ -158,8 +160,10 @@ class GameWindow:
 
     def go_home_page(self):
         self.root.destroy()
-        remove(LOCK_FILE) if path.exists(LOCK_FILE) else None
-        run()
+        difficulty_window = Tk()
+        GameDifficultyWindow(difficulty_window)
+        difficulty_window.protocol("WM_DELETE_WINDOW", difficulty_window.destroy)
+        difficulty_window.mainloop()
 
     def run_game(self):
         self.root.protocol("WM_DELETE_WINDOW", self.go_home_page)
@@ -167,12 +171,13 @@ class GameWindow:
 
 
 def run():
-    # 写入应用锁
-    if path.exists(LOCK_FILE):
+    # 尝试获取应用锁
+    lock_file = open(LOCK_FILE, "w")
+    try:
+        portalocker.lock(lock_file, portalocker.LOCK_EX | portalocker.LOCK_NB)
+    except portalocker.LockException:
         messagebox.showerror("Error", "WordMemoryGame is already running.")
         return
-    with open(LOCK_FILE, "w"):
-        pass
     try:
         # 游戏入口
         difficulty_window = Tk()
@@ -180,8 +185,10 @@ def run():
         difficulty_window.protocol("WM_DELETE_WINDOW", difficulty_window.destroy)
         difficulty_window.mainloop()
     finally:
-        # 退出游戏删除应用锁
-        remove(LOCK_FILE) if path.exists(LOCK_FILE) else None
+        # 释放应用锁
+        portalocker.unlock(lock_file)
+        lock_file.close()
+        remove(LOCK_FILE) if exists(LOCK_FILE) else None
 
 
 if __name__ == '__main__':
